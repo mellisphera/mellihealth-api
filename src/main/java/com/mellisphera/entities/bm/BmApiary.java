@@ -45,25 +45,25 @@ public class BmApiary implements Serializable{
 	private BmHive[] hives;
 	@JsonProperty("notes")
 	private BmNote[] notes;
+
 	
 	public BmApiary() {
 		
 	}
 
-	public BmApiary(String apiaryId, String userId, long createDate, String name, String zipCode, String countryCode, Boolean privateApiary, Boolean hidden, long dataLastReceived, BmHive[] hives, BmNote[] notes) {
+	public BmApiary(String apiaryId, long createDate, String name, String userId, String zipCode, String countryCode, Boolean privateApiary, Boolean hidden, long dataLastReceived, BmHive[] hives, BmNote[] notes) {
 		this.apiaryId = apiaryId;
 		this.createDate = createDate;
 		this.name = name;
+		this.userId = userId;
 		this.zipCode = zipCode;
 		this.countryCode = countryCode;
 		this.privateApiary = privateApiary;
 		this.hidden = hidden;
-		this.userId = userId;
 		this.dataLastReceived = dataLastReceived;
 		this.hives = hives;
 		this.notes = notes;
 	}
-
 	public String getApiaryId() {
 		return apiaryId;
 	}

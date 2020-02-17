@@ -47,13 +47,15 @@ public class BmHive implements Serializable{
 	private BmSensor[] devices;
 	@JsonProperty("notes")
 	private BmNote[] notes;
-
+	@JsonProperty("apiaryLocations")
+	private ApiaryLocation[] apiaryLocation;
 
 	public BmHive() {
 
 	}
 
-	public BmHive(String hiveId, String apiaryId, long createDate, String name, Boolean hidden, long dataLastReceived, BmSensor[] devices) {
+
+	public BmHive(String hiveId, String apiaryId, long createDate, String name, Boolean hidden, long dataLastReceived, BmSensor[] devices, BmNote[] notes, ApiaryLocation[] apiaryLocation) {
 		this.hiveId = hiveId;
 		this.apiaryId = apiaryId;
 		this.createDate = createDate;
@@ -61,6 +63,8 @@ public class BmHive implements Serializable{
 		this.hidden = hidden;
 		this.dataLastReceived = dataLastReceived;
 		this.devices = devices;
+		this.notes = notes;
+		this.apiaryLocation = apiaryLocation;
 	}
 
 	public String getHiveId() {
@@ -83,7 +87,7 @@ public class BmHive implements Serializable{
 		return createDate;
 	}
 
-	public void setCreateDate(int createDate) {
+	public void setCreateDate(long createDate) {
 		this.createDate = createDate;
 	}
 
@@ -107,7 +111,7 @@ public class BmHive implements Serializable{
 		return dataLastReceived;
 	}
 
-	public void setDataLastReceived(int dataLastReceived) {
+	public void setDataLastReceived(long dataLastReceived) {
 		this.dataLastReceived = dataLastReceived;
 	}
 
@@ -127,6 +131,14 @@ public class BmHive implements Serializable{
 		this.notes = notes;
 	}
 
+	public ApiaryLocation[] getApiaryLocation() {
+		return apiaryLocation;
+	}
+
+	public void setApiaryLocation(ApiaryLocation[] apiaryLocation) {
+		this.apiaryLocation = apiaryLocation;
+	}
+
 	@Override
 	public String toString() {
 		return "BmHive{" +
@@ -138,6 +150,7 @@ public class BmHive implements Serializable{
 				", dataLastReceived=" + dataLastReceived +
 				", devices=" + Arrays.toString(devices) +
 				", notes=" + Arrays.toString(notes) +
+				", apiaryLocation=" + apiaryLocation +
 				'}';
 	}
 }

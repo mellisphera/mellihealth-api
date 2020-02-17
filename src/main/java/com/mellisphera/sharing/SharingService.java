@@ -15,6 +15,7 @@ package com.mellisphera.sharing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,13 @@ public class SharingService {
 	
 
 	public void addDemoApiaryNewUser(String idNewUser) throws ApiaryDemoNotFoundException {
-		Apiary demoApiary = this.apiaryRepository.findById(ID_DEMO_APIARY).get();
+		Apiary demoApiary;
+		try {
+			demoApiary = this.apiaryRepository.findById(ID_DEMO_APIARY).get();
+		}
+		catch (NoSuchElementException e) {
+			throw new ApiaryDemoNotFoundException(EXCEPTION_MSG);
+		}
 		if (demoApiary == null) {
 			throw new ApiaryDemoNotFoundException(EXCEPTION_MSG);
 		}

@@ -37,7 +37,7 @@ public class Apiary {
 	private String countryCode;
 	private String photo;
 	private Date dataLastReceived;
-	private String username; 
+	private String username;
 	private List<User> sharedWith;
 	
 	

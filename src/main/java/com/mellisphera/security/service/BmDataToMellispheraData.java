@@ -59,7 +59,6 @@ public class BmDataToMellispheraData {
 
     Note getNewNote(BmNote bmNote, String userId) {
         byte[] byteStr = bmNote.getDescription().getBytes();
-        System.out.println(bmNote.getDescription());
         Note newNote =  new Note(bmNote.getNoteId(),
                 this.convertTimestampToDate(bmNote.getCreateDate()),
                 bmNote.getType(),
@@ -82,6 +81,11 @@ public class BmDataToMellispheraData {
 
     Hive getNewHive(BmHive bmHive, String username, String userId) {
         Hive newHive = new Hive();
+        int apiaryLocationLength = bmHive.getApiaryLocation().length;
+        if (apiaryLocationLength >= 1) {
+            ApiaryLocation lastLocation = bmHive.getApiaryLocation()[apiaryLocationLength - 1];
+            newHive.setApiaryId(lastLocation.getApiaryId());
+        }
         newHive.set_id(bmHive.getHiveId());
        if (xPos >= 90) {
            yPos += 25;
@@ -89,8 +93,8 @@ public class BmDataToMellispheraData {
        }
         newHive.setHivePosY(yPos);
         newHive.setHivePosX(xPos);
-        newHive.setApiaryId(bmHive.getApiaryId());
         newHive.setUserId(userId);
+        newHive.setApiaryLocation(bmHive.getApiaryLocation());
         newHive.setCreateDate(this.convertTimestampToDate(bmHive.getCreateDate()));
         newHive.setHidden(bmHive.getHidden());
         newHive.setDataLastReceived(this.convertTimestampToDate(bmHive.getDataLastReceived()));
@@ -115,8 +119,13 @@ public class BmDataToMellispheraData {
 
     public Hive updateHiveChangeLog(Hive hive, BmHive bmHive) {
         hive.setName(bmHive.getName());
-        hive.setApiaryId(bmHive.getApiaryId());
+        int apiaryLocationLength = bmHive.getApiaryLocation().length;
+        if (apiaryLocationLength >= 1) {
+            ApiaryLocation lastLocation = bmHive.getApiaryLocation()[apiaryLocationLength - 1];
+            hive.setApiaryId(lastLocation.getApiaryId());
+        }
         hive.setHidden(bmHive.getHidden());
+        hive.setApiaryLocation(bmHive.getApiaryLocation());
 
         return hive;
     }
