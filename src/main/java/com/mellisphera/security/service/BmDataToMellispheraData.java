@@ -7,7 +7,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. */ 
+limitations under the License. */
 
 
 
@@ -87,13 +87,14 @@ public class BmDataToMellispheraData {
             newHive.setApiaryId(lastLocation.getApiaryId());
         }
         newHive.set_id(bmHive.getHiveId());
-       if (xPos >= 90) {
-           yPos += 25;
-           xPos = 0;
-       }
+        if (xPos >= 90) {
+            yPos += 25;
+            xPos = 0;
+        }
         newHive.setHivePosY(yPos);
         newHive.setHivePosX(xPos);
         newHive.setUserId(userId);
+        newHive.setDescription(bmHive.getDescription());
         newHive.setApiaryLocation(bmHive.getApiaryLocation());
         newHive.setCreateDate(this.convertTimestampToDate(bmHive.getCreateDate()));
         newHive.setHidden(bmHive.getHidden());
@@ -121,10 +122,16 @@ public class BmDataToMellispheraData {
         hive.setName(bmHive.getName());
         int apiaryLocationLength = bmHive.getApiaryLocation().length;
         if (apiaryLocationLength >= 1) {
-            ApiaryLocation lastLocation = bmHive.getApiaryLocation()[apiaryLocationLength - 1];
+            ApiaryLocation lastLocation;
+            if (apiaryLocationLength == 1) {
+                lastLocation  = bmHive.getApiaryLocation()[0];
+            } else {
+                lastLocation = bmHive.getApiaryLocation()[apiaryLocationLength - 1];
+            }
             hive.setApiaryId(lastLocation.getApiaryId());
         }
         hive.setHidden(bmHive.getHidden());
+        hive.setDescription(bmHive.getDescription());
         hive.setApiaryLocation(bmHive.getApiaryLocation());
 
         return hive;
@@ -142,10 +149,10 @@ public class BmDataToMellispheraData {
         sensor.setUserId(userId);
         sensor.setDeviceLocation(
                 new DeviceLocation(bmSensor.getDeviceLocationId(),
-                bmSensor.getDevice().getDeviceId(),
-                bmHive.getHiveId(),
-                bmSensor.getHivePositionId(),
-                bmSensor.getStart()));
+                        bmSensor.getDevice().getDeviceId(),
+                        bmHive.getHiveId(),
+                        bmSensor.getHivePositionId(),
+                        bmSensor.getStart()));
         sensor.setApiaryId(bmHive.getApiaryId());
         sensor.setType(this.getTypeByRef(bmSensor.getDevice().getDeviceAddress()));
 

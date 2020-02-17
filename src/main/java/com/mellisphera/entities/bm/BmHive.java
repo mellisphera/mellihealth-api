@@ -7,7 +7,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. */ 
+limitations under the License. */
 
 
 
@@ -45,6 +45,8 @@ public class BmHive implements Serializable{
 	private long dataLastReceived;
 	@JsonProperty("devices")
 	private BmSensor[] devices;
+	@JsonProperty("description")
+	private String description;
 	@JsonProperty("notes")
 	private BmNote[] notes;
 	@JsonProperty("apiaryLocations")
@@ -55,7 +57,7 @@ public class BmHive implements Serializable{
 	}
 
 
-	public BmHive(String hiveId, String apiaryId, long createDate, String name, Boolean hidden, long dataLastReceived, BmSensor[] devices, BmNote[] notes, ApiaryLocation[] apiaryLocation) {
+	public BmHive(String hiveId, String apiaryId, long createDate, String name, Boolean hidden, long dataLastReceived, BmSensor[] devices, String description, BmNote[] notes, ApiaryLocation[] apiaryLocation) {
 		this.hiveId = hiveId;
 		this.apiaryId = apiaryId;
 		this.createDate = createDate;
@@ -63,8 +65,17 @@ public class BmHive implements Serializable{
 		this.hidden = hidden;
 		this.dataLastReceived = dataLastReceived;
 		this.devices = devices;
+		this.description = description;
 		this.notes = notes;
 		this.apiaryLocation = apiaryLocation;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getHiveId() {
