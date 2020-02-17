@@ -226,8 +226,13 @@ public class BmDataToMellispheraData {
             }
             newApiary.setPhoto(photos);
         } else {
-            Apiary oldApiary = this.apiaryRepository.findById(bmApiary.getApiaryId()).get();
-            newApiary.setPhoto(oldApiary.getPhoto());
+            try {
+                Apiary oldApiary = this.apiaryRepository.findById(bmApiary.getApiaryId()).get();
+                newApiary.setPhoto(oldApiary.getPhoto());
+            } catch (NoSuchElementException e) {
+                newApiary.setPhoto(BACKGROUND_APIARY_EN[this.getRandomValue((BACKGROUND_APIARY_EN.length))]);
+                this.apiaryRepository.insert(newApiary);
+            }
         }
         return newApiary;
     }

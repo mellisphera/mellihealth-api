@@ -96,19 +96,25 @@ public class RecordController {
         return aggregateRes.getMappedResults();
     }
 
-    @GetMapping("/weight/{hiveId}/{start}/{end}/{unit}")
-    public ResponseEntity<?> getWeightByHive(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end, @PathVariable Unit unit){
-        Sort sort = new Sort(Direction.DESC, "timestamp");
-        List<SimpleSeries> data = new ArrayList<SimpleSeries>();
-        data = this.recordRepository.findByHiveIdAndRecordDateBetween(hiveId, new Date(start),new Date(end), sort).stream().filter(_filter  -> _filter.getSensorRef().contains("43")).map(record -> {
-        	return new SimpleSeries(record.getRecordDate(), this.unitService.convertWeightFromUserPref(record.getWeight(), unit), record.getSensorRef());
-        }).collect(Collectors.toList());
-        if(data != null) {
-        	return new ResponseEntity<>(data, HttpStatus.OK);
-        }
-        else {
-        	return new ResponseEntity<>("Aucune donnée", HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("/weight/{hiveId}/{start}/{end}")
+    public List<DBObject> getWeightByHive(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end){
+        Criteria filter = Criteria.where("recordDate").gte(new Date(start)).lt(new Date(end));
+        Aggregation aggregate;
+        aggregate = Aggregation.newAggregation(
+                Aggregation.match(filter),
+                Aggregation.match(Criteria.where("recordType").is("WEIGHT")),
+                Aggregation.match(Criteria.where("hiveId").is(hiveId)),
+                Aggregation.group("sensorRef").addToSet(new BasicDBObject(){
+                    {
+                        put("recordDate", "$recordDate");
+                        put("weight", "$weight");
+                        put("sensorRef", "$sensorRef");
+                        //put("battery_int", "$battery_int");
+                    }
+                }).as("values")
+        );
+        AggregationResults<DBObject> aggregateRes = this.mongoTemplate.aggregate(aggregate, "Record", DBObject.class);
+        return aggregateRes.getMappedResults();
 
     }
 
