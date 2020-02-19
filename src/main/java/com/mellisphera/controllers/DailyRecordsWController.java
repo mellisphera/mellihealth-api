@@ -81,15 +81,29 @@ public class DailyRecordsWController {
 		return this.hiveController.getAllUserHives(idApiary).stream().map(hive -> this.dailyRecordsWRepository.findByHiveIdAndRecordDateBetween(hive.get_id(), range[0], range[1], sort)).collect(Collectors.toList());
 	}
 	
-	@PostMapping("/hive/between/{hiveId}")
-	public List<SimpleSeries> getWeightIcomeWByHive(@PathVariable String hiveId, @RequestBody Date[] range) {
-        Sort sort = new Sort(Direction.DESC, "timestamp");
-		return this.dailyRecordsWRepository.findByHiveIdAndRecordDateBetween(hiveId, range[0], range[1], sort).stream().map(_daily -> new SimpleSeries(_daily
-				.getRecordDate(), _daily.getWeight_income_gain(), _daily.getSensorRef())).collect(Collectors.toList());
+	@GetMapping("/weightIncome/{hiveId}/{start}/{end}")
+	public List<DBObject> getWeightIcomeWByHive(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end) {
+		Sort sort = new Sort(Direction.DESC, "timestamp");
+		Criteria filter = Criteria.where("recordDate").gte(new Date(start)).lt(new Date(end));
+		Aggregation aggregate;
+		aggregate = Aggregation.newAggregation(
+				Aggregation.match(filter),
+				Aggregation.match(Criteria.where("hiveId").is(hiveId)),
+				Aggregation.group("sensorRef").addToSet(new BasicDBObject(){
+					{
+						put("recordDate", "$recordDate");
+						put("weight_income_gain", "$weight_income_gain");
+						put("sensorRef", "$sensorRef");
+					}
+				}).as("values")
+		);
+		AggregationResults<DBObject> aggregateRes = this.mongoTemplate.aggregate(aggregate, "DailyRecordsW", DBObject.class);
+		return aggregateRes.getMappedResults();
+
 	}
 	
 	
-	@GetMapping("tMin/{hiveId}/{start}/{end}")
+	@GetMapping("/tMin/{hiveId}/{start}/{end}")
 	public List<DBObject> getTminByHive(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end){
 		Sort sort = new Sort(Direction.DESC, "timestamp");
 		Criteria filter = Criteria.where("recordDate").gte(new Date(start)).lt(new Date(end));
@@ -109,7 +123,7 @@ public class DailyRecordsWController {
 		return aggregateRes.getMappedResults();
 	}
 
-	@GetMapping("tMax/{hiveId}/{start}/{end}")
+	@GetMapping("/tMax/{hiveId}/{start}/{end}")
 	public List<DBObject> getTmaxByHive(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end){
 		Sort sort = new Sort(Direction.DESC, "timestamp");
 		Criteria filter = Criteria.where("recordDate").gte(new Date(start)).lt(new Date(end));
@@ -130,7 +144,7 @@ public class DailyRecordsWController {
 	}
 	
 
-	@PostMapping("weightMax/{hiveId}")
+	@PostMapping("/weightMax/{hiveId}")
 	public List<SimpleSeries> getWeightByHive(@RequestBody Date[] range, @PathVariable String hiveId){
         Sort sort = new Sort(Direction.DESC, "timestamp");
 		return this.dailyRecordsWRepository.findByHiveIdAndRecordDateBetween(hiveId, range[0], range[1], sort).stream().map(_daily -> new SimpleSeries(_daily

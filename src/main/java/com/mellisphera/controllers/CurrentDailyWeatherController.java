@@ -52,11 +52,15 @@ public class CurrentDailyWeatherController {
 	}
 
 
-	@PostMapping("apiary/{apiaryId}/{weatherSource}")
-	public List<SimpleSeries> getCurrentDailyWeatherByApiary(@PathVariable String apiaryId, @RequestBody Date[] range, @PathVariable String weatherSource) {
-		return this.dailyWearherRepository.findByApiaryIdAndDateBetween(apiaryId, range[0], range[1]).stream().filter(_elt -> _elt.get_origin().contains(weatherSource)).map(_elt -> {
-			return new SimpleSeries(_elt.getDate(), new Object[] {_elt.getWeather(), _elt.getMain()}, _elt.get_origin());
-		}).collect(Collectors.toList());
+	@GetMapping("apiary/{apiaryId}/{start}/{end}{weatherSource}")
+	public List<CurrentDailyWeather> getCurrentDailyWeatherByApiary(@PathVariable String apiaryId, @PathVariable long start, @PathVariable long end, @PathVariable String weatherSource) {
+
+		Aggregation aggregation = Aggregation.newAggregation(
+				Aggregation.match(Criteria.where("date").gte(new Date(start)).lt(new Date(end))),
+				Aggregation.match(Criteria.where("apiaryId").is(apiaryId)),
+				Aggregation.match(Criteria.where("origin").is(weatherSource))
+		);
+		return this.mongoTemplate.aggregate(aggregation, "CurrentDailyWeather", CurrentDailyWeather.class).getMappedResults();
 	}
 
 	@PostMapping("rain/apiary/{apiaryId}/{weatherSource}")
@@ -66,11 +70,13 @@ public class CurrentDailyWeatherController {
 		}).collect(Collectors.toList());
 	}
 
-	@PostMapping("tExt/apiary/{apiaryId}/{weatherSource}")
-	public List<SimpleSeries> getTempMax(@PathVariable String apiaryId, @RequestBody Date[] range, @PathVariable String weatherSource) {
-		return this.dailyWearherRepository.findByApiaryIdAndDateBetween(apiaryId, range[0], range[1]).stream().filter(_elt -> _elt.get_origin().contains(weatherSource)).map(_elt -> {
-			return new SimpleSeries(_elt.getDate(), _elt.getMain(), _elt.get_origin());
-		}).collect(Collectors.toList());
+	@GetMapping("tExt/apiary/{apiaryId}/{start}/{end}/{weatherSource}")
+	public List<CurrentDailyWeather> getTempMax(@PathVariable String apiaryId, @PathVariable long start, @PathVariable long end, @PathVariable String weatherSource) {
+		Aggregation aggregation = Aggregation.newAggregation(
+				Aggregation.match(Criteria.where("date").gte(new Date(start)).lt(new Date(end))),
+				Aggregation.match(Criteria.where("apiaryId").is(apiaryId))
+		);
+		return this.mongoTemplate.aggregate(aggregation, "CurrentDailyWeather", CurrentDailyWeather.class).getMappedResults();
 	}
 
 	@PostMapping("wind/apiary/{apiaryId}/{weatherSource}")
