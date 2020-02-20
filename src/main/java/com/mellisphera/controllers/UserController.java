@@ -93,7 +93,7 @@ public class UserController {
     @GetMapping("adminLogin/{userId}")
     public JwtResponse loginFromAdmin(@PathVariable String userId) {
         User user = this.userRepository.findById(userId).get();
-        return new JwtResponse(user.getId(), null, user.getConnexions(), user.getUsername(),user.getEmail(), null,null, user.getUserPref(), user.getUserPref().getLang());
+        return new JwtResponse(user.getId(), null, user.getConnexions(), user.getUsername(),user.getEmail(), null,null, user.getUserPref().getLang());
     }
 
     @GetMapping("/update/{userId}")

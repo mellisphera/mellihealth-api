@@ -27,11 +27,10 @@ public class JwtResponse {
 	private String lang;
 	private Long connexions;
 	private String country;
-	private UserPref userPref;
-	private String idUser;
+	private String userId;
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public JwtResponse(String idUser, String accessToken, Long connexions, String username, String email, Collection<? extends GrantedAuthority> authorities, String country, UserPref userPref, String lang) {
+	public JwtResponse(String userId, String accessToken, Long connexions, String username, String email, Collection<? extends GrantedAuthority> authorities, String country, String lang) {
 		this.lang = lang;
 		this.token = accessToken;
 		this.username = username;
@@ -39,8 +38,7 @@ public class JwtResponse {
 		this.authorities = authorities;
 		this.connexions = connexions;
 		this.country = country;
-		this.idUser = idUser;
-		this.userPref = userPref;
+		this.userId = userId;
 	}
 
 	public String getToken() {
@@ -63,21 +61,14 @@ public class JwtResponse {
 		this.lang = lang;
 	}
 
-	public UserPref getUserPref() {
-		return userPref;
+	public String getuserId() {
+		return userId;
 	}
 
-	public String getIdUser() {
-		return idUser;
+	public void setuserId(String userId) {
+		this.userId = userId;
 	}
 
-	public void setIdUser(String idUser) {
-		this.idUser = idUser;
-	}
-
-	public void setUserPref(UserPref userPref) {
-		this.userPref = userPref;
-	}
 
 	public void setType(String type) {
 		this.type = type;

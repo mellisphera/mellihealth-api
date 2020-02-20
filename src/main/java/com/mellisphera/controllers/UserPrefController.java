@@ -17,11 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.mellisphera.entities.User;
 import com.mellisphera.entities.UserPref;
@@ -40,11 +36,16 @@ public class UserPrefController {
 		super();
 	}
 	
-	@PutMapping("/update/{username}")
-	public void updateUserPref(@PathVariable String username, @RequestBody UserPref userPref) {
-		User user = this.userRepository.findUserByUsername(username);
+	@PutMapping("/update/{userId}")
+	public void updateUserPref(@PathVariable String userId, @RequestBody UserPref userPref) {
+		User user = this.userRepository.findById(userId).get();
 		user.setUserPref(userPref);
 		this.userRepository.save(user);
+	}
+
+	@GetMapping("/user/{userId}")
+	public UserPref getUserPrefByUser(@PathVariable String userId) {
+		return this.userRepository.findById(userId).get().getUserPref();
 	}
 	
     @PutMapping("/updatePassword/{idUser}")

@@ -172,7 +172,7 @@ public class AuthRestApiController {
 			this.connectionRepository.insert(connection);
 		}
 		//public JwtResponse(String idUser, String accessToken, Long connexions, String username, String email, Collection<? extends GrantedAuthority> authorities, String country, UserPref userPref, String lang)
-		return ResponseEntity.ok(new JwtResponse(user.getId(), jwt, user.getConnexions(), apiWatchUserDetails.getUsername(),user.getEmail(), apiWatchUserDetails.getAuthorities(),geoIp.getCountry(), user.getUserPref(), user.getUserPref().getLang()));
+		return ResponseEntity.ok(new JwtResponse(user.getId(), jwt, user.getConnexions(), apiWatchUserDetails.getUsername(),user.getEmail(), apiWatchUserDetails.getAuthorities(),geoIp.getCountry(), user.getUserPref().getLang()));
 	}
 
 	/**
