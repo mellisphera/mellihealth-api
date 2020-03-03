@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 
 import com.mellisphera.entities.AlertSent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +40,11 @@ public class AlertSentController {
 	
 	static final private String NOTIF = "NOTIF";
 	@Autowired private AlertSentRepository alertSentRepository;
+	private MongoTemplate mongoTemplate;
+
+	public AlertSentController(MongoTemplate mongoTemplate) {
+		this.mongoTemplate = mongoTemplate;
+	}
 	
 	@GetMapping("/apiary/{idApiary}")
 	public List<AlertSent> getByApiary(@PathVariable String idApiary) {
@@ -53,7 +61,17 @@ public class AlertSentController {
 	public List<AlertSent> getHiveAlertByApiary(@PathVariable String idApiary, @PathVariable long start, @PathVariable long end) {
 		return this.alertSentRepository.findByApiaryIdAndOpsDateBetween(idApiary, new Date(start), new Date(end)).stream().filter(_alertSent -> _alertSent.getLoc().equals("Hive")).collect(Collectors.toList());
 	}
-	
+
+
+	@GetMapping("user/{userId}/{start}/{end}")
+	public List<AlertSent> getAlertsByUser(@PathVariable String userId, @PathVariable long start, @PathVariable long end) {
+		Aggregation aggregation = Aggregation.newAggregation(
+				Aggregation.match(Criteria.where("opsDate").gte(new Date(start)).lt(new Date(end))),
+				Aggregation.match((Criteria.where("userId").is(userId)))
+		);
+		return this.mongoTemplate.aggregate(aggregation, "AlertSent", AlertSent.class).getMappedResults();
+	}
+
 	@PutMapping("/update/{id}")
 	public AlertSent checkAlert(@PathVariable String id, @RequestBody Boolean check){
 		AlertSent alertSent = this.alertSentRepository.findById(id).get();

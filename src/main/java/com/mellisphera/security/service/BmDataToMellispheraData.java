@@ -196,6 +196,9 @@ public class BmDataToMellispheraData {
                 sensor.setApiaryId(null);
                 System.out.println(sensor);
             }
+        } catch (NoSuchElementException except) {
+            sensor.setHiveId(null);
+            sensor.setApiaryId(null);
         }
         sensor.setCreateDate(this.convertTimestampToDate(bmDevice.getCreateDate()));
         sensor.setDataLastReceived(this.convertTimestampToDate(bmDevice.getDataLastReceived()));

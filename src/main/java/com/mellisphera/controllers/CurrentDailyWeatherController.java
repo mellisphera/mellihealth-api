@@ -52,13 +52,13 @@ public class CurrentDailyWeatherController {
 	}
 
 
-	@GetMapping("apiary/{apiaryId}/{start}/{end}{weatherSource}")
+	@GetMapping("apiary/{apiaryId}/{start}/{end}/{weatherSource}")
 	public List<CurrentDailyWeather> getCurrentDailyWeatherByApiary(@PathVariable String apiaryId, @PathVariable long start, @PathVariable long end, @PathVariable String weatherSource) {
 
 		Aggregation aggregation = Aggregation.newAggregation(
 				Aggregation.match(Criteria.where("date").gte(new Date(start)).lt(new Date(end))),
 				Aggregation.match(Criteria.where("apiaryId").is(apiaryId)),
-				Aggregation.match(Criteria.where("origin").is(weatherSource))
+				Aggregation.match(Criteria.where("_origin").is(weatherSource))
 		);
 		return this.mongoTemplate.aggregate(aggregation, "CurrentDailyWeather", CurrentDailyWeather.class).getMappedResults();
 	}

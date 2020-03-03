@@ -14,7 +14,6 @@ limitations under the License. */
 package com.mellisphera.controllers;
 
 import com.mellisphera.entities.AlertUser;
-import com.mellisphera.entities.AlertConf;
 import com.mellisphera.entities.AlertsCat;
 import com.mellisphera.repositories.AlertUserRepository;
 import com.mellisphera.repositories.AlertsCatRepository;
@@ -54,7 +53,7 @@ public class AlertConfController {
     }
 
     @PutMapping("/update")
-    public void updateConf(@RequestBody AlertUser alertUser) {
-        this.alertUserRepository.save(alertUser);
+    public AlertUser updateConf(@RequestBody AlertUser alertUser) {
+        return this.alertUserRepository.save(alertUser);
     }
 }
