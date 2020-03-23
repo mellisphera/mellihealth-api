@@ -122,14 +122,9 @@ public class HiveController {
     }
     
     @PreAuthorize("hasRole('STANDARD') or hasRole('ADMIN') or hasRole('PREMIUM')")
-    @RequestMapping(value = "/update/coordonnees/{id}", method = RequestMethod.PUT)
-    public void updateHivePos(@PathVariable("id") String id, @RequestBody Hive hive) {
-	Hive h = this.hivesRepository.findById(id).get();
-	if(h!=null) {
-            h.setHivePosX(hive.getHivePosX());
-            h.setHivePosY(hive.getHivePosY());
-            this.hivesRepository.save(h);
-	    }
+    @RequestMapping(value = "/update/coordonnees", method = RequestMethod.PUT)
+    public Hive updateHivePos(@RequestBody Hive hive) {
+	    return this.hivesRepository.save(hive);
     }
 	
 	/*@RequestMapping(value="/{username}/{idApiary}/{idHive}",method=RequestMethod.GET, produces= {"application/Json"})
