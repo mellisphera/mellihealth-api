@@ -14,9 +14,7 @@ limitations under the License. */
 package com.mellisphera.controllers;
 
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mongodb.BasicDBObject;
@@ -70,33 +68,23 @@ public class DailyRecordsTHController {
 		this.dailyRecordsTHRepository.deleteById(id);
 	}
         
-    @RequestMapping(value = "/last/{hiveId}" , method = RequestMethod.POST, produces={"application/json"})
-    public List<DailyRecordsTH> getLastDailyRecord(@PathVariable String hiveId, @RequestBody Date [] range){
-        Sort sort = new Sort(Direction.DESC, "timestamp");
-        Date start  = range[0];
-        Date end = range[1];
-        return this.dailyRecordsTHRepository.findByHiveIdAndRecordDateBetween(hiveId, start, end, sort);
-	}
-	
-	@RequestMapping(value = "/apiary/{idApiary}", method = RequestMethod.POST, produces={"application/json"})
-	public List<DailyRecordsTH> getByApiary(@PathVariable String idApiary, @RequestBody Date[] range){
+    /*@RequestMapping(value = "/last/{hiveId}" , method = RequestMethod.POST, produces={"application/json"})
+	@GetMapping("/last/{hiveId}/{start}/{end}" )
+    public List<DailyRecordsTH> getLastDailyRecord(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end){
+        return this.dailyRecordsTHRepository.findByHiveIdAndRecordDateBetween(hiveId, new Date(start), new Date(end), new Sort(Direction.DESC, "timestamp"));
+	}*/
+
+	@GetMapping("/apiary/{idApiary}/{start}/{end}")
+	public Map<String, List<DBObject>> getByApiary(@PathVariable String idApiary, @PathVariable long start, @PathVariable long end){
+
 		List<Hive> hives = this.hiveController.getAllUserHives(idApiary);
 		List<DailyRecordsTH> dailyRecTh = new ArrayList<>();
+		Map<String, List<DBObject>> resByHive = new HashMap<>();
 		for(Hive h : hives) {
-                    try{
-                    	List<DailyRecordsTH> rec = this.getLastDailyRecord(h.get_id(), range);
-                    	dailyRecTh.add(rec.get(rec.size() - 1));
-                    }
-                    catch(ArrayIndexOutOfBoundsException e){
-                       // e.printStackTrace();
-                    }
-                    catch(IndexOutOfBoundsException err){
-                        //err.printStackTrace();
-                    }
+			resByHive.put(h.get_id(), this.getBroodByHive(h.get_id(), start, end));
 
 		}
-		
-		return dailyRecTh;
+		return resByHive;
 	}
 	
 	/*@PostMapping("tMax/{hiveId}")
@@ -153,11 +141,13 @@ public class DailyRecordsTHController {
 		Aggregation aggregate;
 		aggregate = Aggregation.newAggregation(
 				Aggregation.match(filter),
+				Aggregation.sort(Direction.DESC, "timestamp"),
 				Aggregation.match(Criteria.where("hiveId").is(hiveId)),
 				Aggregation.group("sensorRef").addToSet(new BasicDBObject(){
 					{
 						put("recordDate", "$recordDate");
 						put("brood", "$brood");
+						put("timestamp", "$timestamp");
 						put("sensorRef", "$sensorRef");
 					}
 				}).as("values")

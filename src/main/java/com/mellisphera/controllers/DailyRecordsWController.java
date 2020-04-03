@@ -13,10 +13,7 @@ limitations under the License. */
 
 package com.mellisphera.controllers;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mongodb.BasicDBObject;
@@ -75,10 +72,14 @@ public class DailyRecordsWController {
 		return this.dailyRecordsWRepository.findDailyRecordsWByHiveId(hiveId);
 	}
 	
-	@PostMapping("/apiary/{idApiary}")
-	public List<List<DailyRecordsW>> getDailyRecordsWByApiary(@PathVariable String idApiary, @RequestBody Date[] range) {
+	@GetMapping("/apiary/{idApiary}/{start}/{end}")
+	public Map<String, List<DBObject>> getDailyRecordsWByApiary(@PathVariable String idApiary, @PathVariable long start, @PathVariable long end) {
         Sort sort = new Sort(Direction.DESC, "timestamp");
-		return this.hiveController.getAllUserHives(idApiary).stream().map(hive -> this.dailyRecordsWRepository.findByHiveIdAndRecordDateBetween(hive.get_id(), range[0], range[1], sort)).collect(Collectors.toList());
+		Map<String, List<DBObject>> mapRes = new HashMap<>();
+        this.hiveController.getAllUserHives(idApiary).forEach(_hive -> {
+			mapRes.put(_hive.get_id(), this.getWeightByHive(_hive.get_id(), start, end));
+		});
+        return mapRes;
 	}
 	
 	@GetMapping("/weightIncome/{hiveId}/{start}/{end}")
@@ -144,11 +145,23 @@ public class DailyRecordsWController {
 	}
 	
 
-	@PostMapping("/weightMax/{hiveId}")
-	public List<SimpleSeries> getWeightByHive(@RequestBody Date[] range, @PathVariable String hiveId){
-        Sort sort = new Sort(Direction.DESC, "timestamp");
-		return this.dailyRecordsWRepository.findByHiveIdAndRecordDateBetween(hiveId, range[0], range[1], sort).stream().map(_daily -> new SimpleSeries(_daily
-				.getRecordDate(), _daily.getWeight_max(), _daily.getSensorRef())).collect(Collectors.toList());
+	@GetMapping("/weightMax/{hiveId}/{start}/{end}")
+	public List<DBObject> getWeightByHive(@PathVariable String hiveId, @PathVariable long start, @PathVariable long end){
+		Criteria filter = Criteria.where("recordDate").gte(new Date(start)).lt(new Date(end));
+		Aggregation aggregate;
+		aggregate = Aggregation.newAggregation(
+				Aggregation.match(filter),
+				Aggregation.match(Criteria.where("hiveId").is(hiveId)),
+				Aggregation.group("sensorRef").addToSet(new BasicDBObject(){
+					{
+						put("recordDate", "$recordDate");
+						put("weight_max", "$weight_max");
+						put("sensorRef", "$sensorRef");
+					}
+				}).as("values")
+		);
+		AggregationResults<DBObject> aggregateRes = this.mongoTemplate.aggregate(aggregate, "DailyRecordsW", DBObject.class);
+		return aggregateRes.getMappedResults();
 	}
 	
 }
